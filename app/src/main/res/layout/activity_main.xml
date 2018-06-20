@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.othershe.library.NiceImageView
+            android:id="@+id/nice_iv1"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp"
+            app:is_circle="true" />
+
+        <com.othershe.library.NiceImageView
+            android:id="@+id/nice_iv2"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp"
+            app:is_circle="true" />
+
+        <com.othershe.library.NiceImageView
+            android:id="@+id/nice_iv3"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp"
+            app:is_circle="true" />
+
+
+        <ImageView
+            android:id="@+id/iv4"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv5"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv6"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv7"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv8"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv9"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv10"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/iv11"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+</ScrollView>
