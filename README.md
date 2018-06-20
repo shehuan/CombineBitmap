@@ -57,5 +57,3 @@ CombineBitmap.init(context)
     .build();
 ```
 由于生成的组合Bitmap是矩形的，要实现钉钉的圆形显示效果，这里用到了一个可圆形显示的ImageView控件：[NiceImageView](https://github.com/Othershe/NiceImageView)
-
-更多细节见GitHub：<https://github.com/Othershe/CombineBitmap>
