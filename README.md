@@ -33,7 +33,7 @@ dependencies {
 }
 ```
 **Step 3. 配置**
-```
+``` java
 CombineBitmap.init(context)
     .setLayoutManager() // 必选， 设置图片的组合形式，支持WechatLayoutManager、DingLayoutManager
     .setSize() // 必选，组合后Bitmap的尺寸，单位dp
