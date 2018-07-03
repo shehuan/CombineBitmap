@@ -1,13 +1,23 @@
 package com.othershe.combinebitmap.helper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Region;
 import android.support.annotation.ColorInt;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.othershe.combinebitmap.layout.DingLayoutManager;
 import com.othershe.combinebitmap.layout.ILayoutManager;
 import com.othershe.combinebitmap.layout.WechatLayoutManager;
+import com.othershe.combinebitmap.listener.OnProgressListener;
+import com.othershe.combinebitmap.listener.OnSubItemClickListener;
+import com.othershe.combinebitmap.region.DingRegionManager;
+import com.othershe.combinebitmap.region.IRegionManager;
+import com.othershe.combinebitmap.region.WechatRegionManager;
 
 public class Builder {
     public Context context;
@@ -20,6 +30,9 @@ public class Builder {
     public int subSize; // 单个bitmap的尺寸
 
     public ILayoutManager layoutManager; // bitmap的组合样式
+
+    public Region[] regions;
+    public OnSubItemClickListener subItemClickListener; // 单个bitmap点击事件回调
 
     public OnProgressListener progressListener; // 最终的组合bitmap回调接口
 
@@ -67,6 +80,11 @@ public class Builder {
         return this;
     }
 
+    public Builder setOnSubItemClickListener(OnSubItemClickListener subItemClickListener) {
+        this.subItemClickListener = subItemClickListener;
+        return this;
+    }
+
     public Builder setBitmaps(Bitmap... bitmaps) {
         this.bitmaps = bitmaps;
         this.count = bitmaps.length;
@@ -87,11 +105,13 @@ public class Builder {
 
     public void build() {
         subSize = getSubSize(size, gap, layoutManager, count);
+        initRegions();
         CombineHelper.init().load(this);
     }
 
     /**
      * 根据最终生成bitmap的尺寸，计算单个bitmap尺寸
+     *
      * @param size
      * @param gap
      * @param layoutManager
@@ -110,7 +130,77 @@ public class Builder {
             } else if (count < 10) {
                 subSize = (size - 4 * gap) / 3;
             }
+        } else {
+            throw new IllegalArgumentException("Must use DingLayoutManager or WechatRegionManager!");
         }
         return subSize;
     }
+
+    /**
+     * 初始化RegionManager
+     */
+    private void initRegions() {
+        if (subItemClickListener == null || imageView == null) {
+            return;
+        }
+
+        IRegionManager regionManager;
+
+        if (layoutManager instanceof DingLayoutManager) {
+            regionManager = new DingRegionManager();
+        } else if (layoutManager instanceof WechatLayoutManager) {
+            regionManager = new WechatRegionManager();
+        } else {
+            throw new IllegalArgumentException("Must use DingLayoutManager or WechatRegionManager!");
+        }
+
+        regions = regionManager.calculateRegion(size, subSize, gap, count);
+
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            int initIndex = -1;
+            int currentIndex = -1;
+            Point point = new Point();
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                point.set((int) event.getX(), (int) event.getY());
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initIndex = getRegionIndex(point.x, point.y);
+                        currentIndex = initIndex;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        currentIndex = getRegionIndex(point.x, point.y);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        currentIndex = getRegionIndex(point.x, point.y);
+                        if (currentIndex != -1 && currentIndex == initIndex) {
+                            subItemClickListener.onSubItemClick(currentIndex);
+                        }
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        initIndex = currentIndex = -1;
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
+    /**
+     * 根据触摸点计算对应的Region索引
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private int getRegionIndex(int x, int y) {
+        for (int i = 0; i < regions.length; i++) {
+            if (regions[i].contains(x, y)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }

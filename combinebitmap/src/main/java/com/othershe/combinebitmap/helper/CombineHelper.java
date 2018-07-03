@@ -2,8 +2,7 @@ package com.othershe.combinebitmap.helper;
 
 import android.graphics.Bitmap;
 
-import com.othershe.combinebitmap.hander.HandlerListener;
-import com.othershe.combinebitmap.hander.ProgressHandler;
+import com.othershe.combinebitmap.listener.OnHandlerListener;
 
 
 public class CombineHelper {
@@ -27,7 +26,7 @@ public class CombineHelper {
             defaultBitmap = CompressHelper.getInstance()
                     .compressResource(builder.context.getResources(), builder.placeholder, subSize, subSize);
         }
-        ProgressHandler handler = new ProgressHandler(defaultBitmap, builder.count, new HandlerListener() {
+        ProgressHandler handler = new ProgressHandler(defaultBitmap, builder.count, new OnHandlerListener() {
             @Override
             public void onComplete(Bitmap[] bitmaps) {
                 setBitmap(builder, bitmaps);
@@ -70,9 +69,7 @@ public class CombineHelper {
         }
     }
 
-
-
-    private void setBitmap(Builder b, Bitmap[] bitmaps) {
+    private void setBitmap(final Builder b, Bitmap[] bitmaps) {
         Bitmap result = b.layoutManager.combineBitmap(b.size, b.subSize, b.gap, b.gapColor, bitmaps);
 
         // 返回最终的组合Bitmap

@@ -1,4 +1,4 @@
-# NiceImageView
+# CombineBitmap
 
 ### 效果预览
 
@@ -13,6 +13,7 @@
 * 网络加载时支持线程池
 * 支持磁盘缓存、内存缓存
 * 对图片资源进行采样率压缩
+* 支持子图像的点击事件
 * ......
 ### 基本用法
 **Step 1. 添加JitPack仓库**
@@ -28,7 +29,7 @@ allprojects {
 **Step 2. 添加项目依赖**
 ``` gradle
 dependencies {
-    implementation 'com.github.Othershe:CombineBitmap:1.0.0'
+    implementation 'com.github.Othershe:CombineBitmap:1.0.5'
 }
 ```
 **Step 3. 配置**
@@ -36,14 +37,22 @@ dependencies {
 CombineBitmap.init(context)
     .setLayoutManager() // 必选， 设置图片的组合形式，支持WechatLayoutManager、DingLayoutManager
     .setSize() // 必选，组合后Bitmap的尺寸，单位dp
-    .setGap() // 单个Bitmap之间的距离，单位dp，默认0dp
-    .setGapColor() // 单个Bitmap间距的颜色，默认白色
-    .setPlaceholder() // 单个Bitmap加载失败的默认显示图片
+    .setGap() // 单个图片之间的距离，单位dp，默认0dp
+    .setGapColor() // 单个图片间距的颜色，默认白色
+    .setPlaceholder() // 单个图片加载失败的默认显示图片
     .setUrls() // 要加载的图片url数组
     .setBitmaps() // 要加载的图片bitmap数组
     .setResourceIds() // 要加载的图片资源id数组
     .setImageView() // 直接设置要显示图片的ImageView
-    .setProgressListener(new ProgressListener() { // 加载进度的回调函数，如果不使用setImageView()方法，可在onComplete()完成最终图片的显示
+    // 设置“子图片”的点击事件，需使用setImageView()，index和图片资源数组的索引对应
+    .setOnSubItemClickListener(new OnSubItemClickListener() {
+        @Override
+        public void onSubItemClick(int index) {
+
+        }
+    })
+    // 加载进度的回调函数，如果不使用setImageView()方法，可在onComplete()完成最终图片的显示
+    .setProgressListener(new ProgressListener() {
         @Override
         public void onStart() {
 

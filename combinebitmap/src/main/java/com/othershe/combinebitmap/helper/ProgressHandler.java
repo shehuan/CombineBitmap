@@ -1,8 +1,10 @@
-package com.othershe.combinebitmap.hander;
+package com.othershe.combinebitmap.helper;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+
+import com.othershe.combinebitmap.listener.OnHandlerListener;
 
 public class ProgressHandler extends Handler {
     private int i = 0;
@@ -10,9 +12,9 @@ public class ProgressHandler extends Handler {
     private Bitmap[] bitmaps;
 
     private Bitmap defaultBitmap;
-    private HandlerListener listener;
+    private OnHandlerListener listener;
 
-    public ProgressHandler(Bitmap defaultBitmap, int count, HandlerListener listener) {
+    public ProgressHandler(Bitmap defaultBitmap, int count, OnHandlerListener listener) {
         this.defaultBitmap = defaultBitmap;
         this.bitmaps = new Bitmap[count];
         this.listener = listener;

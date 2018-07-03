@@ -6,12 +6,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.othershe.combinebitmap.CombineBitmap;
-import com.othershe.combinebitmap.helper.OnProgressListener;
 import com.othershe.combinebitmap.layout.DingLayoutManager;
 import com.othershe.combinebitmap.layout.WechatLayoutManager;
+import com.othershe.combinebitmap.listener.OnProgressListener;
+import com.othershe.combinebitmap.listener.OnSubItemClickListener;
 import com.othershe.library.NiceImageView;
 
 import java.util.List;
@@ -150,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 .setGapColor(Color.parseColor("#E8E8E8"))
                 .setUrls(getUrls(count))
                 .setImageView(imageView)
+                .setOnSubItemClickListener(new OnSubItemClickListener() {
+                    @Override
+                    public void onSubItemClick(int index) {
+                        Log.e("SubItemIndex", "--->" + index);
+                    }
+                })
                 .build();
     }
 

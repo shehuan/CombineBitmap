@@ -1,4 +1,4 @@
-package com.othershe.combinebitmap.helper;
+package com.othershe.combinebitmap.listener;
 
 import android.graphics.Bitmap;
 
