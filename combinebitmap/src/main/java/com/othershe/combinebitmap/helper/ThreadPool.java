@@ -43,14 +43,20 @@ public class ThreadPool {
         private static final ThreadPool instance = new ThreadPool();
     }
 
-    public ThreadPoolExecutor getThreadPoolExecutor() {
+    private ThreadPoolExecutor getThreadPoolExecutor() {
         if (THREAD_POOL_EXECUTOR == null) {
             THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-                    CORE_POOL_SIZE, MAX_POOL_SIZE,
-                    KEEP_ALIVE, TimeUnit.SECONDS,
+                    CORE_POOL_SIZE,
+                    MAX_POOL_SIZE,
+                    KEEP_ALIVE,
+                    TimeUnit.SECONDS,
                     new LinkedBlockingDeque<Runnable>(),
                     sThreadFactory);
         }
         return THREAD_POOL_EXECUTOR;
+    }
+
+    public void execute(Runnable command) {
+        getThreadPoolExecutor().execute(command);
     }
 }

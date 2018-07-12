@@ -76,7 +76,7 @@ public class BitmapLoader {
             return;
         }
 
-        ThreadPool.getInstance().getThreadPoolExecutor().execute(task);
+        ThreadPool.getInstance().execute(task);
     }
 
     private Bitmap loadBitmap(String url, int reqWidth, int reqHeight) {
@@ -215,7 +215,7 @@ public class BitmapLoader {
         // 检查undoTasks中是否有要执行的任务
         if (undoTasks.containsKey(key)) {
             for (Runnable task : undoTasks.get(key)) {
-                ThreadPool.getInstance().getThreadPoolExecutor().execute(task);
+                ThreadPool.getInstance().execute(task);
             }
             undoTasks.remove(key);
         }
