@@ -6,18 +6,24 @@ import android.os.Message;
 
 import com.othershe.combinebitmap.listener.OnHandlerListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProgressHandler extends Handler {
     private int i = 0;
-
+//    temp arraylist for bitmap
+    private List<Bitmap> tempbitmap= new ArrayList();
     private Bitmap[] bitmaps;
-
+//default number
+    private int defaultnum=0;
     private Bitmap defaultBitmap;
     private OnHandlerListener listener;
-
+    private int count;
     public ProgressHandler(Bitmap defaultBitmap, int count, OnHandlerListener listener) {
         this.defaultBitmap = defaultBitmap;
         this.bitmaps = new Bitmap[count];
         this.listener = listener;
+        this.count=count;
     }
 
     @Override
@@ -25,15 +31,23 @@ public class ProgressHandler extends Handler {
         super.handleMessage(msg);
         switch (msg.what) {
             case 1://成功
-                bitmaps[msg.arg1] = (Bitmap) msg.obj;
+                tempbitmap.add((Bitmap)msg.obj);
                 break;
             case 2://失败
-                bitmaps[msg.arg1] = defaultBitmap;
+                defaultnum++;
                 break;
         }
-        i++;
-        if (i == bitmaps.length && listener != null) {
-            listener.onComplete(bitmaps);
+        ++i;
+//        If the icon is empty, order it back to the exist icons
+        if(count==(this.tempbitmap.size()+defaultnum))
+        {
+            for(int i=0;i<defaultnum;i++)
+            {
+                this.tempbitmap.add(defaultBitmap);
+            }
+        }
+        if (count == this.tempbitmap.size() && this.listener != null) {
+            listener.onComplete(tempbitmap.toArray(new Bitmap[count]));
         }
     }
 }
