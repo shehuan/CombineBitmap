@@ -15,6 +15,7 @@ public class DingLayoutManager implements ILayoutManager {
         canvas.drawColor(gapColor);
 
         int count = bitmaps.length;
+        if(count>4)count=4;
         Bitmap subBitmap;
 
         int[][] dxy = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
