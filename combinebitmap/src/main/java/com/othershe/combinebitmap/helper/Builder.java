@@ -32,6 +32,7 @@ public class Builder {
     public int count; // 要加载的资源数量
     public int subSize; // 单个bitmap的尺寸
     public OkHttpClient okHttpClient;
+    public Object tag;
     public ILayoutManager layoutManager; // bitmap的组合样式
 
     public Region[] regions;
@@ -108,6 +109,12 @@ public class Builder {
 
     public Builder setOkhttpMethod(OkHttpClient okHttpClient){
         this.okHttpClient=okHttpClient;
+        return this;
+    }
+
+    public Builder setTag(Object tag){
+        this.imageView.setTag(tag);
+        this.tag=tag;
         return this;
     }
     public void build() {

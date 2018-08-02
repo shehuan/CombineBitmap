@@ -119,7 +119,7 @@ public class BitmapLoader {
             bitmap[0] = loadBitmapFromHttp(url, reqWidth, reqHeight);
 //            use Okhttp
             else
-                loadBitmapFromOkhttp(url, reqWidth, reqHeight,okHttpClient,new OnBitmapLoaded(){
+                loadBitmapFromOkhttp(url, reqWidth, reqHeight,okHttpClient,true,new OnBitmapLoaded(){
 
                 @Override
                 public void onComplete(Bitmap obitmap) {
@@ -164,7 +164,7 @@ public class BitmapLoader {
         return loadBitmapFromDiskCache(url, reqWidth, reqHeight);
     }
 
-    private void loadBitmapFromOkhttp(@NonNull final String url, final int reqWidth, final int reqHeight, OkHttpClient client, final OnBitmapLoaded onBitmapLoaded) throws IOException {
+    private void loadBitmapFromOkhttp(@NonNull final String url, final int reqWidth, final int reqHeight, OkHttpClient client,boolean enqueue, final OnBitmapLoaded onBitmapLoaded) throws IOException {
         String key = Utils.hashKeyFormUrl(url);
         final DiskLruCache.Editor editor = this.mDiskLruCache.edit(key);
         if (editor != null) {
@@ -176,20 +176,27 @@ public class BitmapLoader {
             Call call=client.newCall(request);
             final BufferedOutputStream[] finalOut = {out[0]};
             final BufferedInputStream finalIn = in[0];
-//            Response response=call.execute();
-//            if(response.isSuccessful()) {
-//                in[0] = new BufferedInputStream(response.body().byteStream(), 8192);
-//                out[0] = new BufferedOutputStream(outputStream, 8192);
-//                int b;
-//                while ((b = in[0].read()) != -1) {
-//                    out[0].write(b);
-//                }
-//                Utils.close(finalOut[0]);
-//                Utils.close(finalIn);
-//                editor.commit();
-//            }
-//            else
-//                editor.abort();
+            if(!enqueue) {
+            Response response=call.execute();
+            if(response.isSuccessful()) {
+                in[0] = new BufferedInputStream(response.body().byteStream(), 8192);
+                out[0] = new BufferedOutputStream(outputStream, 8192);
+                int b;
+                while ((b = in[0].read()) != -1) {
+                    out[0].write(b);
+                }
+                Utils.close(finalOut[0]);
+                Utils.close(finalIn);
+                editor.commit();
+                mDiskLruCache.flush();
+                executeUndoTasks(url);
+                onBitmapLoaded.onComplete(loadBitmapFromDiskCache(url, reqWidth, reqHeight));
+            }
+            else
+                editor.abort();
+                onBitmapLoaded.onFailed(null);
+            }
+            else
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
