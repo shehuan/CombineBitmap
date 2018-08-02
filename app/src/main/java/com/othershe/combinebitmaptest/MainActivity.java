@@ -18,6 +18,7 @@ import com.othershe.library.NiceImageView;
 
 import java.util.List;
 
+import okhttp3.OkHttpClient;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -145,12 +146,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void loadWechatBitmap(ImageView imageView, int count) {
+        OkHttpClient client=new OkHttpClient.Builder().build();
         CombineBitmap.init(MainActivity.this)
                 .setLayoutManager(new WechatLayoutManager())
                 .setSize(180)
                 .setGap(3)
                 .setGapColor(Color.parseColor("#E8E8E8"))
                 .setUrls(getUrls(count))
+                .setOkhttpMethod(client)
                 .setImageView(imageView)
                 .setOnSubItemClickListener(new OnSubItemClickListener() {
                     @Override
@@ -162,10 +165,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void loadDingBitmap(final ImageView imageView, int count) {
+        OkHttpClient client=new OkHttpClient.Builder().build();
         CombineBitmap.init(MainActivity.this)
                 .setLayoutManager(new DingLayoutManager())
                 .setSize(180)
                 .setGap(2)
+                .setOkhttpMethod(client)
                 .setUrls(getUrls(count))
                 .setOnProgressListener(new OnProgressListener() {
                     @Override

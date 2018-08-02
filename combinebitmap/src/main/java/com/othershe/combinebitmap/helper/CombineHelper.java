@@ -33,7 +33,7 @@ public class CombineHelper {
             }
         });
         for (int i = 0; i < builder.count; i++) {
-            BitmapLoader.getInstance(builder.context).asyncLoad(i, builder.urls[i], subSize, subSize, handler);
+            BitmapLoader.getInstance(builder.context).asyncLoad(i, builder.urls[i], subSize, subSize, handler,builder.okHttpClient);
         }
     }
 
@@ -78,7 +78,7 @@ public class CombineHelper {
         }
 
         // 给ImageView设置最终的组合Bitmap
-        if (b.imageView != null) {
+        if (b.imageView != null&&b.imageView.getTag()==b.tag) {
             b.imageView.setImageBitmap(result);
         }
     }

@@ -29,4 +29,6 @@ dependencies {
     compile 'pub.devrel:easypermissions:0.4.2'
     compile project(':combinebitmap')
     implementation 'com.github.Othershe:NiceImageView:1.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+
 }

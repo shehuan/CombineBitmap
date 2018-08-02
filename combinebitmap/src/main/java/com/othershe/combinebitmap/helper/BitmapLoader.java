@@ -3,11 +3,14 @@ package com.othershe.combinebitmap.helper;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.othershe.combinebitmap.cache.DiskLruCacheHelper;
 import com.othershe.combinebitmap.cache.LruCacheHelper;
+import com.othershe.combinebitmap.listener.OnBitmapLoaded;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -21,6 +24,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class BitmapLoader {
     private static String TAG = BitmapLoader.class.getSimpleName();
@@ -59,16 +68,24 @@ public class BitmapLoader {
     }
 
 
-    public void asyncLoad(final int index, final String url, final int reqWidth, final int reqHeight, final Handler handler) {
+    public void asyncLoad(final int index, final String url, final int reqWidth, final int reqHeight, final Handler handler, @Nullable final OkHttpClient okHttpClient) {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                Bitmap bitmap = loadBitmap(url, reqWidth, reqHeight);
-                if (bitmap != null) {
-                    handler.obtainMessage(1, index, -1, bitmap).sendToTarget();
-                } else {
-                    handler.obtainMessage(2, index, -1, null).sendToTarget();
-                }
+                loadBitmap(url, reqWidth, reqHeight,okHttpClient, new OnBitmapLoaded(){
+
+                    @Override
+                    public void onComplete(Bitmap bitmap) {
+                        handler.obtainMessage(1, index, -1, bitmap).sendToTarget();
+
+                    }
+
+                    @Override
+                    public void onFailed(@Nullable Bitmap bitmap) {
+                        handler.obtainMessage(2, index, -1, null).sendToTarget();
+
+                    }
+                });
             }
         };
 
@@ -79,34 +96,54 @@ public class BitmapLoader {
         ThreadPool.getInstance().execute(task);
     }
 
-    private Bitmap loadBitmap(String url, int reqWidth, int reqHeight) {
+    private void loadBitmap(final String url, int reqWidth, int reqHeight, @Nullable OkHttpClient okHttpClient, final OnBitmapLoaded onBitmapLoaded) {
 
         // 尝试从内存缓存中读取
         String key = Utils.hashKeyFormUrl(url);
-        Bitmap bitmap = lruCacheHelper.getBitmapFromMemCache(key);
-        if (bitmap != null) {
+        final Bitmap[] bitmap = {lruCacheHelper.getBitmapFromMemCache(key)};
+        if (bitmap[0] != null) {
             Log.e(TAG, "load from memory:" + url);
-            return bitmap;
+            onBitmapLoaded.onComplete(bitmap[0]);
         }
 
         try {
             // 尝试从磁盘缓存中读取
-            bitmap = loadBitmapFromDiskCache(url, reqWidth, reqHeight);
-            if (bitmap != null) {
+            bitmap[0] = loadBitmapFromDiskCache(url, reqWidth, reqHeight);
+            if (bitmap[0] != null) {
                 Log.e(TAG, "load from disk:" + url);
-                return bitmap;
+                onBitmapLoaded.onComplete(bitmap[0]);
             }
             // 尝试下载
-            bitmap = loadBitmapFromHttp(url, reqWidth, reqHeight);
-            if (bitmap != null) {
+//            use normal http conenction
+            if(okHttpClient==null)
+            bitmap[0] = loadBitmapFromHttp(url, reqWidth, reqHeight);
+//            use Okhttp
+            else
+                loadBitmapFromOkhttp(url, reqWidth, reqHeight,okHttpClient,true,new OnBitmapLoaded(){
+
+                @Override
+                public void onComplete(Bitmap obitmap) {
+                    Log.e(TAG, "load from okhttp:" + url);
+                    bitmap[0] =obitmap;
+                    onBitmapLoaded.onComplete(obitmap);
+                }
+
+                @Override
+                public void onFailed(@Nullable Bitmap bitmap) {
+                    onBitmapLoaded.onFailed(null);
+                }
+            });
+            if (bitmap[0] != null) {
                 Log.e(TAG, "load from http:" + url);
-                return bitmap;
+                onBitmapLoaded.onComplete(bitmap[0]);
             }
+            if(bitmap[0]==null)
+                onBitmapLoaded.onFailed(null);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return null;
     }
 
     private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight)
@@ -127,6 +164,70 @@ public class BitmapLoader {
         return loadBitmapFromDiskCache(url, reqWidth, reqHeight);
     }
 
+    private void loadBitmapFromOkhttp(@NonNull final String url, final int reqWidth, final int reqHeight, OkHttpClient client,boolean enqueue, final OnBitmapLoaded onBitmapLoaded) throws IOException {
+        String key = Utils.hashKeyFormUrl(url);
+        final DiskLruCache.Editor editor = this.mDiskLruCache.edit(key);
+        if (editor != null) {
+            final OutputStream outputStream = editor.newOutputStream(0);
+            Request request=new Request.Builder().url(url).get().build();
+            final BufferedOutputStream[] out = {null};
+            final BufferedInputStream[] in = {null};
+
+            Call call=client.newCall(request);
+            final BufferedOutputStream[] finalOut = {out[0]};
+            final BufferedInputStream finalIn = in[0];
+            if(!enqueue) {
+            Response response=call.execute();
+            if(response.isSuccessful()) {
+                in[0] = new BufferedInputStream(response.body().byteStream(), 8192);
+                out[0] = new BufferedOutputStream(outputStream, 8192);
+                int b;
+                while ((b = in[0].read()) != -1) {
+                    out[0].write(b);
+                }
+                Utils.close(finalOut[0]);
+                Utils.close(finalIn);
+                editor.commit();
+                mDiskLruCache.flush();
+                executeUndoTasks(url);
+                onBitmapLoaded.onComplete(loadBitmapFromDiskCache(url, reqWidth, reqHeight));
+            }
+            else
+                editor.abort();
+                onBitmapLoaded.onFailed(null);
+            }
+            else
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    try {
+                        editor.abort();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.d("theokhttp::",response.toString());
+                    in[0] =new BufferedInputStream(response.body().byteStream(),8192);
+                    out[0] = new BufferedOutputStream(outputStream, 8192);
+                    int b;
+                    while((b = in[0].read()) != -1) {
+                        out[0].write(b);
+                    }
+                    Utils.close(finalOut[0]);
+                    Utils.close(finalIn);
+                    editor.commit();
+                    mDiskLruCache.flush();
+                    executeUndoTasks(url);
+                    onBitmapLoaded.onComplete(loadBitmapFromDiskCache(url, reqWidth, reqHeight));
+
+                }
+            });
+
+
+        }
+    }
     private boolean downloadUrlToStream(String urlString,
                                         OutputStream outputStream) {
         HttpURLConnection urlConnection = null;
