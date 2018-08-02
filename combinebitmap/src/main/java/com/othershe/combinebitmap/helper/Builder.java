@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Region;
 import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +20,8 @@ import com.othershe.combinebitmap.region.DingRegionManager;
 import com.othershe.combinebitmap.region.IRegionManager;
 import com.othershe.combinebitmap.region.WechatRegionManager;
 
+import okhttp3.OkHttpClient;
+
 public class Builder {
     public Context context;
     public ImageView imageView;
@@ -28,7 +31,7 @@ public class Builder {
     public int placeholder; // 获取图片失败时的默认图片
     public int count; // 要加载的资源数量
     public int subSize; // 单个bitmap的尺寸
-
+    public OkHttpClient okHttpClient;
     public ILayoutManager layoutManager; // bitmap的组合样式
 
     public Region[] regions;
@@ -103,6 +106,10 @@ public class Builder {
         return this;
     }
 
+    public Builder setOkhttpMethod(OkHttpClient okHttpClient){
+        this.okHttpClient=okHttpClient;
+        return this;
+    }
     public void build() {
         subSize = getSubSize(size, gap, layoutManager, count);
         initRegions();
