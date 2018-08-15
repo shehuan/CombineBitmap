@@ -34,5 +34,5 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
 
-    compile 'com.jakewharton:disklrucache:2.0.2'
+    implementation 'com.jakewharton:disklrucache:2.0.2'
 }
