@@ -10,6 +10,11 @@ public class CombineHelper {
         return CombineHelper.SingletonHolder.instance;
     }
 
+
+    private CombineHelper(){
+        
+    }
+
     private static class SingletonHolder {
         private static final CombineHelper instance = new CombineHelper();
     }
