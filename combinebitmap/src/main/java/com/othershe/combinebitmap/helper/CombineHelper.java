@@ -12,7 +12,7 @@ public class CombineHelper {
 
 
     private CombineHelper(){
-        
+
     }
 
     private static class SingletonHolder {
