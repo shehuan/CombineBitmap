@@ -10,7 +10,7 @@ import java.io.FileDescriptor;
 
 public class CompressHelper {
 
-    public CompressHelper() {
+    private CompressHelper() {
     }
 
     public static CompressHelper getInstance() {

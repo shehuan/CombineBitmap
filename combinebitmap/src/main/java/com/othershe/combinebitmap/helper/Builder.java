@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.othershe.combinebitmap.R;
 import com.othershe.combinebitmap.layout.DingLayoutManager;
 import com.othershe.combinebitmap.layout.ILayoutManager;
 import com.othershe.combinebitmap.layout.WechatLayoutManager;
@@ -25,7 +26,7 @@ public class Builder {
     public int size; // 最终生成bitmap的尺寸
     public int gap; // 每个小bitmap之间的距离
     public int gapColor; // 间距的颜色
-    public int placeholder; // 获取图片失败时的默认图片
+    public int placeholder  = R.drawable.defalut_placeholder; // 获取图片失败时的默认图片
     public int count; // 要加载的资源数量
     public int subSize; // 单个bitmap的尺寸
 
