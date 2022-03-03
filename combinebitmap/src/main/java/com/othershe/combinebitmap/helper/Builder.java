@@ -1,11 +1,10 @@
 package com.othershe.combinebitmap.helper;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Region;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
